@@ -1,27 +1,23 @@
-from fastapi import FastAPI
-from fastapi_users import FastAPIUsers
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi_jwt_auth import AuthJWT
+from registration.endpoints import router_auth
+from fastapi_jwt_auth.exceptions import AuthJWTException
 
-from auth import auth_backend
-from models import User
-from schemas import UserRead, UserCreate
-from utils import get_user_manager
+from registration.schemas import Settings
 
 app = FastAPI()
 
+@AuthJWT.load_config
+def get_config():
+    return Settings()
 
-fastapi_users = FastAPIUsers[User, int](
-    get_user_manager,
-    [auth_backend],
-)
+@app.exception_handler(AuthJWTException)
+def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message}
+    )
 
-app.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/jwt",
-    tags=["auth"],
-)
+app.include_router(router_auth)
 
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-)

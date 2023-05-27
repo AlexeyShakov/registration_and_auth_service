@@ -1,8 +1,9 @@
 alembic
 asyncpg
 fastapi[all]
-fastapi-users[sqlalchemy]
 python-dotenv
 sqlalchemy
 pytest
 pytest-asyncio
+bcrypt
+pip install fastapi-jwt-auth
