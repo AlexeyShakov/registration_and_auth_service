@@ -11,7 +11,7 @@ import sys
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
 from src.config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
-from src.database import Base
+from src.database_conn import Base
 from src.registration.models import *
 
 # this is the Alembic Config object, which provides

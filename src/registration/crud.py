@@ -1,4 +1,4 @@
-from database import Base
+from database_conn import Base
 from sqlalchemy.ext.asyncio import AsyncSession
 
 async def create(model: Base, session: AsyncSession, data: dict) -> Base:
