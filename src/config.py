@@ -12,3 +12,4 @@ DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
 SECRET = os.getenv("TOKEN_SECRET")
+JWT_ALGORITHM = "HS256"

@@ -6,4 +6,5 @@ sqlalchemy
 pytest
 pytest-asyncio
 bcrypt
-pip install fastapi-jwt-auth
+fastapi-jwt-auth
+PyJWT
