@@ -31,3 +31,6 @@ class LoginSchema(BaseModel):
 class Settings(BaseModel):
     authjwt_secret_key: str = SECRET
 
+
+class TokenSchema(BaseModel):
+    access: str

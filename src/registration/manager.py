@@ -1,16 +1,13 @@
 from enums import RoleChoices
 import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
-from database_conn import Base, get_async_session
+from database_conn import Base
 from models import User
 from registration.utils import get_obj
 
 
 class UserManager:
     async def create(self, model: Base, session: AsyncSession, user_obj: dict):
-        user_obj["role"] = RoleChoices.USER
-        user_obj["is_superuser"] = False
-
         password = user_obj["password"]
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         user_obj["password"] = hashed_password.decode()
@@ -27,3 +24,7 @@ class UserManager:
 
     async def validate_password(self, user_obj: User, password: str) -> bool:
         return bcrypt.hashpw(password.encode(), user_obj.password.encode()) == user_obj.password.encode()
+
+    async def validate_token(self, token: str) -> bool | int:
+        pass
+
