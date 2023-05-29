@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 
-async def get_obj(model: Base, identification_param: str | int, session: AsyncSession) -> Base | bool:
-    try:
-        query = select(model).where(model.username == identification_param)
-    except:
-        query = select(model).where(model.id == identification_param)
+async def get_obj(model: Base, session: AsyncSession, user_id: int = None, username: str = None) -> Base | bool:
+    if user_id:
+        query = select(model).where(model.id == user_id)
+    else:
+        query = select(model).where(model.username == username)
     result = await session.execute(query)
     obj = result.scalars().first()
     if not obj:

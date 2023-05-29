@@ -6,8 +6,7 @@ from database_conn import get_async_session
 from models import User
 from registration.manager import UserManager
 from registration.schemas import UserSchemaReturn, UserSchemaCreate, LoginSchema, TokenSchema
-from config import SECRET, JWT_ALGORITHM
-import jwt
+from config import JWT_ALGORITHM
 from datetime import datetime
 
 from registration.utils import get_obj
@@ -38,21 +37,8 @@ async def singup(user_object: UserSchemaCreate, session: AsyncSession = Depends(
 
 @router_auth.post("/userbytoken", response_model=UserSchemaReturn, status_code=201)
 async def user_by_token(token: TokenSchema, session: AsyncSession = Depends(get_async_session)):
-    try:
-        decoded_token = jwt.decode(token.access, SECRET, algorithms=JWT_ALGORITHM)
-    except jwt.exceptions.InvalidSignatureError:
-        raise HTTPException(status_code=401, detail="Invalid signature")
-    except jwt.exceptions.InvalidAlgorithmError:
-        raise HTTPException(status_code=401, detail="Invalid algorithm")
-    except jwt.exceptions.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Signature has expired")
-    except Exception:
-        raise HTTPException(status_code=401, detail="Problems with the token")
-    if datetime.timestamp(datetime.now()) < decoded_token["exp"]:
+    decoded_token = await UserManager().decode_token(token.access)
+    if datetime.timestamp(datetime.now()) > decoded_token["exp"]:
         raise HTTPException(status_code=401, detail="Token expired")
-    return await get_obj(User, decoded_token["id"], session)
-
-
-    # Нужно раскодировать токен
-    # проверить что он не истек
+    return await get_obj(User, session, decoded_token["id"])
 
