@@ -8,8 +8,8 @@ class UserSchemaBase(BaseModel):
     username: str
     first_name: str
     last_name: str
-    patronymic: Optional[str]
-    phone_number: str
+    surname: Optional[str]
+    phone: str
     email: str
 
 
