@@ -6,10 +6,9 @@ from database_conn import get_async_session
 from models import User
 from registration.manager import UserManager
 from registration.schemas import UserSchemaReturn, UserSchemaCreate, LoginSchema, TokenSchema
-from config import JWT_ALGORITHM
 from datetime import datetime
 
-from registration.utils import get_obj
+from registration.utils import get_obj, create_tokens
 
 router_auth = APIRouter(
     prefix="/auth",
@@ -17,9 +16,8 @@ router_auth = APIRouter(
 )
 
 
-
-@router_auth.post("/singin", status_code=201)
-async def login(login_object: LoginSchema, Authorize: AuthJWT = Depends(), session: AsyncSession = Depends(get_async_session)):
+@router_auth.post("/login", status_code=201)
+async def login(login_object: LoginSchema, session: AsyncSession = Depends(get_async_session), Authorize: AuthJWT = Depends()):
     user_manager = UserManager()
     user_obj = await user_manager.get_user_by_username(login_object.username, session)
     if not user_obj:
@@ -27,15 +25,13 @@ async def login(login_object: LoginSchema, Authorize: AuthJWT = Depends(), sessi
     if not await user_manager.validate_password(user_obj, login_object.password):
         raise HTTPException(status_code=401, detail="Invalid password")
     additional_info = {"id": user_obj.id}
-    access_token = Authorize.create_access_token(subject=login_object.username, user_claims=additional_info, algorithm=JWT_ALGORITHM)
-    refresh_token = Authorize.create_refresh_token(subject=login_object.username, user_claims=additional_info, algorithm=JWT_ALGORITHM)
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return await create_tokens(login_object.username, additional_info, Authorize)
 
 @router_auth.post("/signup", response_model=UserSchemaReturn, status_code=201)
 async def singup(user_object: UserSchemaCreate, session: AsyncSession = Depends(get_async_session)):
     return await UserManager().create(User, session, user_object.dict())
 
-@router_auth.post("/userbytoken", response_model=UserSchemaReturn, status_code=201)
+@router_auth.post("/userbytoken", response_model=UserSchemaReturn, status_code=200)
 async def user_by_token(token: TokenSchema, session: AsyncSession = Depends(get_async_session)):
     decoded_token = await UserManager().decode_token(token.access)
     if datetime.timestamp(datetime.now()) > decoded_token["exp"]:
