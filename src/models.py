@@ -17,4 +17,5 @@ class User(Base):
     role = Column(Enum(RoleChoices), nullable=False, default=RoleChoices.USER)
     email = Column(String(length=320), unique=True, index=True, nullable=False)
     password = Column(String(length=1024), nullable=False)
+    has_helpdesk_permission = Column(Boolean, default=False, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
