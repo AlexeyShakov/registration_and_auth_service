@@ -11,6 +11,7 @@ class UserSchemaBase(BaseModel):
     surname: Optional[str]
     phone: str
     email: str
+    has_helpdesk_permission: bool
 
 
 class UserSchemaCreate(UserSchemaBase):
